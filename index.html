@@ -469,7 +469,6 @@ function redirectToTally() {
   const tour = document.getElementById('tour')?.value || '';
   const date = document.getElementById('date')?.value || '';
 
-  // Construye la URL de Tally con los parámetros
   const baseUrl = "https://tally.so/r/nrQlQL";
   const params = new URLSearchParams();
   
@@ -481,13 +480,10 @@ function redirectToTally() {
   
   const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
   
-  // Abrir en nueva ventana
   window.open(finalUrl, '_blank');
 }
 
-// Función mejorada para llenar automáticamente el formulario
 function autoFillForm() {
-  // Llena automáticamente el campo de fecha con la fecha de mañana
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = tomorrow.toISOString().split('T')[0];
@@ -497,7 +493,6 @@ function autoFillForm() {
   }
 }
 
-// Función para pre-llenar el formulario cuando se carga la página
 function prefillFormFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
   
@@ -518,8 +513,23 @@ function prefillFormFromURL() {
   }
 }
 
-// Language switcher functionality
 document.querySelectorAll('.lang-switcher a').forEach(link => {
   link.addEventListener('click', function(e) {
     e.preventDefault();
-    const isSpanish = this.querySelector('img
+    const isSpanish = this.querySelector('img').src.includes('es.png');
+    
+    if (isSpanish) {
+      document.body.classList.add('lang-es');
+    } else {
+      document.body.classList.remove('lang-es');
+    }
+  });
+});
+
+window.addEventListener('load', function() {
+  autoFillForm();
+  prefillFormFromURL();
+});
+</script>
+</body>
+</html>
