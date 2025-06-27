@@ -469,36 +469,57 @@ function redirectToTally() {
   const tour = document.getElementById('tour')?.value || '';
   const date = document.getElementById('date')?.value || '';
 
-  const base = "https://tally.so/r/nrQlQL";
-  const url = `${base}?fullName=${encodeURIComponent(name)}&emailAddress=${encodeURIComponent(email)}&whatsAppNumber=${encodeURIComponent(whatsapp)}&requestedTour=${encodeURIComponent(tour)}&tourDate=${encodeURIComponent(date)}`;
-  window.open(url, '_blank');
+  // Construye la URL de Tally con los parámetros
+  const baseUrl = "https://tally.so/r/nrQlQL";
+  const params = new URLSearchParams();
+  
+  if (name) params.append('fullName', name);
+  if (email) params.append('emailAddress', email);
+  if (whatsapp) params.append('whatsAppNumber', whatsapp);
+  if (tour) params.append('requestedTour', tour);
+  if (date) params.append('tourDate', date);
+  
+  const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+  
+  // Abrir en nueva ventana
+  window.open(finalUrl, '_blank');
+}
+
+// Función mejorada para llenar automáticamente el formulario
+function autoFillForm() {
+  // Llena automáticamente el campo de fecha con la fecha de mañana
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+  
+  if (document.getElementById('date')) {
+    document.getElementById('date').value = tomorrowStr;
+  }
+}
+
+// Función para pre-llenar el formulario cuando se carga la página
+function prefillFormFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  if (urlParams.get('name')) {
+    document.getElementById('name2').value = urlParams.get('name');
+  }
+  if (urlParams.get('email')) {
+    document.getElementById('email2').value = urlParams.get('email');
+  }
+  if (urlParams.get('whatsapp')) {
+    document.getElementById('whatsapp2').value = urlParams.get('whatsapp');
+  }
+  if (urlParams.get('tour')) {
+    document.getElementById('tour').value = urlParams.get('tour');
+  }
+  if (urlParams.get('date')) {
+    document.getElementById('date').value = urlParams.get('date');
+  }
 }
 
 // Language switcher functionality
 document.querySelectorAll('.lang-switcher a').forEach(link => {
   link.addEventListener('click', function(e) {
     e.preventDefault();
-    const isSpanish = this.querySelector('img').src.includes('es.png');
-    document.body.classList.toggle('lang-es', isSpanish);
-    
-    // Update select options text
-    updateSelectOptions();
-  });
-});
-
-function updateSelectOptions() {
-  const isSpanish = document.body.classList.contains('lang-es');
-  const tourSelect = document.getElementById('tour');
-  
-  if (tourSelect) {
-    const options = tourSelect.querySelectorAll('option');
-    options[0].textContent = isSpanish ? 'Safari' : 'Safari';
-    options[1].textContent = isSpanish ? 'Rafting Clase 3' : 'Rafting Class 3';
-    options[2].textContent = isSpanish ? 'Rafting Clase 4' : 'Rafting Class 4';
-    options[3].textContent = isSpanish ? 'Rafting de Día Completo' : 'Full-Day Rafting';
-  }
-}
-</script>
-
-</body>
-</html>
+    const isSpanish = this.querySelector('img
