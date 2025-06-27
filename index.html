@@ -399,10 +399,10 @@
 <input id="date" name="tourDate" required="" type="date"/>
 <label for="tour"><span class="en">Tour *</span><span class="es">Tour *</span></label>
 <select id="tour" name="requestedTour" required="">
-<option value="Safari"><span class="en">Safari</span><span class="es">Safari</span></option>
-<option value="Rafting Class 3"><span class="en">Rafting Class 3</span><span class="es">Rafting Clase 3</span></option>
-<option value="Rafting Class 4"><span class="en">Rafting Class 4</span><span class="es">Rafting Clase 4</span></option>
-<option value="Full-Day Rafting"><span class="en">Full-Day Rafting</span><span class="es">Rafting de Día Completo</span></option>
+<option value="Safari">Safari</option>
+<option value="Rafting Class 3">Rafting Class 3</option>
+<option value="Rafting Class 4">Rafting Class 4</option>
+<option value="Full-Day Rafting">Full-Day Rafting</option>
 </select>
 <button type="submit">
 <span class="en">Book Now</span><span class="es">Reservar Ahora</span>
@@ -437,9 +437,6 @@
 </div>
 
 <script>
-// Store form data temporarily
-let formData = {};
-
 function toggleTourModal(titleEn = '', titleEs = '', descriptionEn = '', descriptionEs = '', images = []) {
   const modal = document.getElementById('tour-modal');
   const titleEl = document.getElementById('modal-title');
@@ -478,30 +475,43 @@ function toggleTransportDetails() {
   }
 }
 
-function collectFormData() {
-  const name = document.getElementById('name2')?.value || '';
-  const email = document.getElementById('email2')?.value || '';
-  const whatsapp = document.getElementById('whatsapp2')?.value || '';
-  const tour = document.getElementById('tour')?.value || '';
-  const date = document.getElementById('date')?.value || '';
-
-  return { name, email, whatsapp, tour, date };
+function getCurrentFormData() {
+  return {
+    name: document.getElementById('name2')?.value || '',
+    email: document.getElementById('email2')?.value || '',
+    whatsapp: document.getElementById('whatsapp2')?.value || '',
+    tour: document.getElementById('tour')?.value || '',
+    date: document.getElementById('date')?.value || ''
+  };
 }
 
 function openTallyForm(prefilledData = null) {
-  const data = prefilledData || collectFormData();
+  const data = prefilledData || getCurrentFormData();
   
   const baseUrl = "https://tally.so/r/nrQlQL";
   const params = new URLSearchParams();
   
-  // Map form field names to Tally parameter names
-  if (data.name) params.append('fullName', data.name);
-  if (data.email) params.append('emailAddress', data.email);
-  if (data.whatsapp) params.append('whatsAppNumber', data.whatsapp);
-  if (data.tour) params.append('requestedTour', data.tour);
-  if (data.date) params.append('tourDate', data.date);
+  // Map form data to Tally parameters - exact match with Tally field names
+  if (data.name && data.name.trim()) {
+    params.set('fullName', data.name.trim());
+  }
+  if (data.email && data.email.trim()) {
+    params.set('emailAddress', data.email.trim());
+  }
+  if (data.whatsapp && data.whatsapp.trim()) {
+    params.set('whatsAppNumber', data.whatsapp.trim());
+  }
+  if (data.tour && data.tour.trim()) {
+    params.set('requestedTour', data.tour.trim());
+  }
+  if (data.date && data.date.trim()) {
+    params.set('tourDate', data.date.trim());
+  }
   
   const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+  
+  console.log('Opening Tally form with data:', data);
+  console.log('Final URL:', finalUrl);
   
   window.open(finalUrl, '_blank');
 }
@@ -514,41 +524,51 @@ function setDefaultDate() {
   const dateField = document.getElementById('date');
   if (dateField && !dateField.value) {
     dateField.value = tomorrowStr;
+    dateField.setAttribute('min', tomorrowStr);
   }
 }
 
-function prefillFormFromURL() {
-  const urlParams = new URLSearchParams(window.location.search);
-  
-  const fieldMappings = {
-    'name': 'name2',
-    'email': 'email2', 
-    'whatsapp': 'whatsapp2',
-    'tour': 'tour',
-    'date': 'date'
-  };
-
-  Object.entries(fieldMappings).forEach(([param, fieldId]) => {
-    const value = urlParams.get(param);
-    const field = document.getElementById(fieldId);
-    if (value && field) {
-      field.value = value;
-    }
-  });
-}
-
-// Handle booking form submission
-document.addEventListener('DOMContentLoaded', function() {
+function setupFormValidation() {
   const bookingForm = document.getElementById('booking-form');
   if (bookingForm) {
     bookingForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      const data = collectFormData();
-      openTallyForm(data);
+      
+      // Get current form data
+      const formData = getCurrentFormData();
+      
+      // Basic validation
+      if (!formData.name || !formData.email || !formData.whatsapp || !formData.tour || !formData.date) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      
+      // Open Tally form with collected data
+      openTallyForm(formData);
     });
   }
+}
 
-  // Set up language switcher
+function setupLanguageSwitcher() {
   document.querySelectorAll('.lang-switcher a').forEach(link => {
     link.addEventListener('click', function(e) {
-      e.
+      e.preventDefault();
+      
+      if (this.querySelector('img').alt === 'Español') {
+        document.body.classList.add('lang-es');
+      } else {
+        document.body.classList.remove('lang-es');
+      }
+    });
+  });
+}
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  setDefaultDate();
+  setupFormValidation();
+  setupLanguageSwitcher();
+  
+  // Debug: Log form field values on change
+  ['name2', 'email2', 'whatsapp2', 'tour', 'date'].forEach(id => {
+    const field = document.getElementById(id);
