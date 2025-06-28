@@ -266,16 +266,42 @@
       border-top-right-radius: 10px;
     }
 
+    .card img {
+      height: 220px;
+      object-fit: cover;
+      width: 100%;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+
     #modal-description .image-row {
       display: flex;
       gap: 1em;
       margin-bottom: 1em;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
     #modal-description .image-row img {
-      flex: 1;
+      flex: 0 0 280px;
       height: 160px;
       object-fit: cover;
       border-radius: 8px;
+    }
+    
+    /* Scrollbar styling for webkit browsers */
+    #modal-description .image-row::-webkit-scrollbar {
+      height: 6px;
+    }
+    #modal-description .image-row::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+    #modal-description .image-row::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+    #modal-description .image-row::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
     }
 </style>
 </head>
