@@ -475,43 +475,30 @@ function toggleTransportDetails() {
   }
 }
 
-function getCurrentFormData() {
-  return {
-    name: document.getElementById('name2')?.value || '',
-    email: document.getElementById('email2')?.value || '',
-    whatsapp: document.getElementById('whatsapp2')?.value || '',
-    tour: document.getElementById('tour')?.value || '',
-    date: document.getElementById('date')?.value || ''
-  };
-}
-
-function openTallyForm(prefilledData = null) {
-  const data = prefilledData || getCurrentFormData();
+function openTallyForm(formData = null) {
+  // Si no se pasan datos, recoger los datos del formulario de Quick Booking
+  let data = formData;
+  if (!data) {
+    data = {
+      name: document.getElementById('name2')?.value || '',
+      email: document.getElementById('email2')?.value || '',
+      whatsapp: document.getElementById('whatsapp2')?.value || '',
+      tour: document.getElementById('tour')?.value || '',
+      date: document.getElementById('date')?.value || ''
+    };
+  }
   
   const baseUrl = "https://tally.so/r/nrQlQL";
   const params = new URLSearchParams();
   
-  // Map form data to Tally parameters - exact match with Tally field names
-  if (data.name && data.name.trim()) {
-    params.set('fullName', data.name.trim());
-  }
-  if (data.email && data.email.trim()) {
-    params.set('emailAddress', data.email.trim());
-  }
-  if (data.whatsapp && data.whatsapp.trim()) {
-    params.set('whatsAppNumber', data.whatsapp.trim());
-  }
-  if (data.tour && data.tour.trim()) {
-    params.set('requestedTour', data.tour.trim());
-  }
-  if (data.date && data.date.trim()) {
-    params.set('tourDate', data.date.trim());
-  }
+  // Mapear los campos del formulario a los parámetros de Tally
+  if (data.name && data.name.trim()) params.append('fullName', data.name.trim());
+  if (data.email && data.email.trim()) params.append('emailAddress', data.email.trim());
+  if (data.whatsapp && data.whatsapp.trim()) params.append('whatsAppNumber', data.whatsapp.trim());
+  if (data.tour && data.tour.trim()) params.append('requestedTour', data.tour.trim());
+  if (data.date && data.date.trim()) params.append('tourDate', data.date.trim());
   
   const finalUrl = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
-  
-  console.log('Opening Tally form with data:', data);
-  console.log('Final URL:', finalUrl);
   
   window.open(finalUrl, '_blank');
 }
@@ -524,51 +511,50 @@ function setDefaultDate() {
   const dateField = document.getElementById('date');
   if (dateField && !dateField.value) {
     dateField.value = tomorrowStr;
-    dateField.setAttribute('min', tomorrowStr);
   }
 }
 
-function setupFormValidation() {
-  const bookingForm = document.getElementById('booking-form');
-  if (bookingForm) {
-    bookingForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Get current form data
-      const formData = getCurrentFormData();
-      
-      // Basic validation
-      if (!formData.name || !formData.email || !formData.whatsapp || !formData.tour || !formData.date) {
-        alert('Please fill in all required fields.');
-        return;
-      }
-      
-      // Open Tally form with collected data
-      openTallyForm(formData);
-    });
-  }
-}
+function prefillFormFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  const fieldMappings = {
+    'name': 'name2',
+    'email': 'email2', 
+    'whatsapp': 'whatsapp2',
+    'tour': 'tour',
+    'date': 'date'
+  };
 
-function setupLanguageSwitcher() {
-  document.querySelectorAll('.lang-switcher a').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      if (this.querySelector('img').alt === 'Español') {
-        document.body.classList.add('lang-es');
-      } else {
-        document.body.classList.remove('lang-es');
-      }
-    });
+  Object.entries(fieldMappings).forEach(([param, fieldId]) => {
+    const value = urlParams.get(param);
+    const field = document.getElementById(fieldId);
+    if (value && field) {
+      field.value = value;
+    }
   });
 }
 
-// Initialize everything when DOM is loaded
+// Inicialización cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-  setDefaultDate();
-  setupFormValidation();
-  setupLanguageSwitcher();
-  
-  // Debug: Log form field values on change
-  ['name2', 'email2', 'whatsapp2', 'tour', 'date'].forEach(id => {
-    const field = document.getElementById(id);
+  // Configurar el manejador de envío del formulario de reserva rápida
+  const bookingForm = document.getElementById('booking-form');
+  if (bookingForm) {
+    bookingForm.addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevenir el envío normal del formulario
+      
+      // Recoger los datos del formulario
+      const formData = {
+        name: document.getElementById('name2').value,
+        email: document.getElementById('email2').value,
+        whatsapp: document.getElementById('whatsapp2').value,
+        tour: document.getElementById('tour').value,
+        date: document.getElementById('date').value
+      };
+      
+      // Abrir Tally con los datos prellenados
+      openTallyForm(formData);
+    });
+  }
+
+  // Configurar el switcher de idiomas
+  document.querySelectorAll('.lang-switcher a').forEach(link => {
