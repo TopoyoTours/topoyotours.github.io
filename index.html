@@ -558,3 +558,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Configurar el switcher de idiomas
   document.querySelectorAll('.lang-switcher a').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      if (this.href.includes('es') || this.querySelector('img').alt === 'Español') {
+        document.body.classList.add('lang-es');
+      } else {
+        document.body.classList.remove('lang-es');
+      }
+    });
+  });
+
+  // Prellenar formulario desde URL al cargar la página
+  prefillFormFromURL();
+  
+  // Establecer fecha por defecto (mañana)
+  setDefaultDate();
+});
+</script>
+
+</body>
+</html>
